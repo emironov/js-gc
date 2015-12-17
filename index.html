@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>JS garbage collection test.</title>
+
+<!--
+
+The purpose of this script is to find out if deleting references to an object makes
+the browser's garbage collection kick in. According to my results, such is only
+the case with Firefox. Chrome and IE don't do nuttin. Even with Firefox, there seems
+to be no saying what caused the garbage collection to occur. Might just be the end of
+script execution. What is strange though is that IE and Chrome never emptied the recycle bin
+way after script finished.
+
+This script does not use console as to not keep any references or whatever in the console object.
+All output gets printed to screen.
+
+ -->
+<script type='text/javascript'>
+
+function createChunks() {
+    var div, foo, i, str;
+    for (i = 0; i < 20; i++) {
+        div = document.createElement("div");
+        str = new Array(1000000).join('x');
+        foo = {
+            str: str,
+            div: div
+        };
+        div.foo = foo;
+    }
+}
+
+function getRandomIntInclusive(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function createCanvas() {
+    var div = document.createElement("div");
+    div.innerHTML = '<canvas id="canvas" width="640" height="480"></canvas>';
+    document.getElementsByTagName("body")[0].appendChild(div);
+    return div.firstChild;
+}
+
+function deleteCanvas(canvas) {
+    canvas.parentElement.parentElement.removeChild(canvas.parentElement);
+    canvas = null;
+}
+
+function drawRandomRect(canvas) {
+    if (canvas.getContext) {
+        var ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "rgb(255, 0, 0)";
+        var x = getRandomIntInclusive(0, canvas.width);
+        var y = getRandomIntInclusive(0, canvas.height);
+        ctx.fillRect (x, y, canvas.width, canvas.height);
+    }
+}
+
+function doDraw() {
+    var canvas = createCanvas();
+    drawRandomRect(canvas);
+    setTimeout(function() {
+    	deleteCanvas(canvas)
+    }, getRandomIntInclusive(0, 10000));
+}
+
+function createArray(bytes) {
+    var alotOfBytes = [];
+    var len = Math.ceil(bytes / 8);
+    for (var ii = 0; ii < len; ++ii) {
+        alotOfBytes.push( getRandomIntInclusive(0, len) );
+    }
+    return alotOfBytes;
+}
+
+function dummyWork(arr) {
+    var len = arr.length;
+    if (len == 0) {
+        // nothing to delete
+        return;
+    }
+
+    // The array contains the random number which are not exceed the length of the array
+    // Randomly select how many steps we will do to find the victiom to kill
+    var steps = getRandomIntInclusive(0, len);
+    var idx = 0;
+    while (steps--) {
+        idx = arr[idx];
+    }
+    var str = arr[idx];
+    // try to attach the string to prevent removing this magic by the code optimizator
+    var c = document.getElementById('canvas');
+    if (c) {
+        c.parentElement.innerHTML = '<div>' + str + '</div>' + c.parentElement.innerHTML;
+    }
+    // Kill the victim
+    arr[idx] = null;
+    return arr;
+}
+
+function doWork() {
+    var arr = createArray(getRandomIntInclusive(0.1 * 1024*1024, 1 * 1024*1024));
+    var n = getRandomIntInclusive(0, arr.length);
+    for(var ii = 0; ii < n; ++ii) {
+        arr = dummyWork(arr);
+    }
+    setTimeout(function() {
+        arr.length = 0;
+        arr = null;
+    }, getRandomIntInclusive(0, 2000));
+}
+
+ window.onkeydown = function(event) {
+    console.log(event.keyCode);
+    if(event.keyCode == 49) {
+        if(this.drawId) {
+            console.log("Stop draw");
+            clearInterval(this.drawId);
+            this.drawId = null;
+        } else {
+            console.log("Start draw");
+            this.drawId = setInterval(doDraw, 1000);
+        }
+    } else if(event.keyCode == 50) {
+        if (this.workId) {
+            console.log("Stop work");
+            clearInterval(this.workId);
+            this.workId = null;
+        } else {
+            console.log("Start work");
+            this.workId = setInterval(doWork, 1500);
+        }
+    } else if(event.keyCode == 51) {
+        if (this.example2Id) {
+            console.log("Stop example2");
+            clearInterval(this.example2Id);
+            this.example2Id = null;
+        } else {
+            console.log("Start example2");
+            this.example2Id = setInterval(createChunks, 1000);
+        }
+    }
+ }
+
+</script>
+
+</head>
+<body>
+    <div>
+        Use 1, 2 or 3 keys to start or stop the following tests:
+        <ol>
+            <li>Create canvas element, attach it to the document amd draw random rectangle. The canvas will be removed after random seconds (max 30)</li>
+            <li>Allocate array from 100Kb to 1Mb and do some stupid work with it. The array also will be removed after random seconds. It takes 100% CPU so you will face some lags</li>
+            <li>Create circular reference</li>
+        </ol>
+    </div>
+</body>
+</html>
