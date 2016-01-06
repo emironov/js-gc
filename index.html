@@ -102,7 +102,7 @@ function dummyWork(arr) {
 }
 
 function doWork() {
-    var arr = createArray(getRandomIntInclusive(0.1 * 1024*1024, 1 * 1024*1024));
+    var arr = createArray(getRandomIntInclusive(0.5 * 1024*1024, 5 * 1024*1024));
     var n = getRandomIntInclusive(0, arr.length);
     for(var ii = 0; ii < n; ++ii) {
         arr = dummyWork(arr);
@@ -131,7 +131,7 @@ function doWork() {
             this.workId = null;
         } else {
             console.log("Start work");
-            this.workId = setInterval(doWork, 1500);
+            this.workId = setInterval(doWork, 1000);
         }
     } else if(event.keyCode == 51) {
         if (this.example2Id) {
