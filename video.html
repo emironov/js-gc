@@ -6,14 +6,11 @@ function getRandomIntInclusive(min, max) {
 }
 
 function go() {
-  var a = new Audio();
-  a.autoplay = "1";
-  a.src="http://www.nch.com.au/acm/8k16bitpcm.wav";
-  //setInterval(function() { document.location.reload(true); }, getRandomIntInclusive(0, 5000));
+  setInterval(function() { document.location.reload(true); }, getRandomIntInclusive(0, 3000));
 }
 </script>
 </head>
-<body>
+<body onload="go()">
     <video solovideo="" bpp="TRANSITION_VIDEO" autoplay="" 
         autoplay=""
         ng-src="http://qaott.weather.com.s3.amazonaws.com/content/video/interstitial/60Now.mp4"
