@@ -6,13 +6,14 @@ function getRandomIntInclusive(min, max) {
 }
 
 function go() {
-  setInterval(function() { document.location.reload(true); }, getRandomIntInclusive(0, 3000));
+  setInterval(function() {
+      document.location.reload(true);
+  }, getRandomIntInclusive(0, 3000));
 }
 </script>
 </head>
 <body onload="go()">
-    <video solovideo="" bpp="TRANSITION_VIDEO" autoplay="" 
-        autoplay=""
+    <video solovideo="" bpp="TRANSITION_VIDEO" autoplay
         ng-src="http://qaott.weather.com.s3.amazonaws.com/content/video/interstitial/60Now.mp4"
         src="http://qaott.weather.com.s3.amazonaws.com/content/video/interstitial/60Now.mp4" 
         bpp_scale="0.6"
