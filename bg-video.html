@@ -1,5 +1,37 @@
 <html>
+<script>
+  var video = document.getElementById("bgvid"),
+  pauseButton = document.getElementById("btn");
+  
+  function vidFade() {
+    video.classList.add("stopfade");
+  }
+  
+  video.addEventListener('ended', function() {
+    video.pause();
+    vidFade();
+    }, false); 
+   
+  pauseButton.addEventListener("click", function() {
+    video.classList.toggle("stopfade");
+    if (video.paused) {
+      video.play();
+      pauseButton.innerHTML = "Pause";
+    } else {
+      video.pause();
+      pauseButton.innerHTML = "Paused";
+    }
+  }, false);
+  
+  video.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    video.play();
+  });
+
+</script>
+
 <body>
+  <button id="btn">Pause</button>
   <video autoplay loop poster="polina.jpg" id="bgvid">
     <source src="polina.webm" type="video/webm">
     <source src="polina.mp4" type="video/mp4">
